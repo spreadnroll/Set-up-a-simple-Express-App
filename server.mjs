@@ -2,6 +2,7 @@ import express from "express";
 import morgan from "morgan";
 import "express-async-errors";
 import dotenv from 'dotenv';
+import Joi from 'joi';
 
 dotenv.config();
 const app = express();
@@ -36,13 +37,23 @@ app.get("/api/planets/:id", (req, res) => {
     }
 });
 
-app.post('/api/planets', (req, res) => {
-  const {id, name} = req.body;
-  const newPlanet = {id, name};
-  const planets = {...planets, newPlanet};
-
-  res.status(201).json({msg: 'The Planet was Created!'})
+let planetScheme = Joi.object({
+  id: Joi.number().integer().required(),
+  name: Joi.string().required(),
 })
+
+app.post('/api/planets', (req, res) => {
+  const { error } = planetScheme.validate(req.body);
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message });
+  }
+
+  const { id, name } = req.body;
+  const newPlanet = { id, name };
+  planets.push(newPlanet);
+
+  res.status(201).json({ message: 'The Planet was created!', newPlanet });
+});
 
 app.put('/api/planets/:id', (req, res) => {
   const { id } = req.params;
