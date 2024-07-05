@@ -36,6 +36,33 @@ app.get("/api/planets/:id", (req, res) => {
     }
 });
 
+app.post('/api/planets', (req, res) => {
+  const {id, name} = req.body;
+  const newPlanet = {id, name};
+  const planets = {...planets, newPlanet};
+
+  res.status(201).json({msg: 'The Planet was Created!'})
+})
+
+app.put('/api/planets/:id', (req, res) => {
+  const { id } = req.params;
+  const { name } = req.body;
+
+  const planetId = parseInt(id, 10);
+  planets = planets.map(p => p.id === planetId ? { ...p, name } : p);
+  
+  res.status(200).json({ message: 'Planet updated', planets });
+});
+
+app.delete('/api/planets/:id', (req, res) => {
+  const { id } = req.params;
+
+  const planetId = parseInt(id, 10);
+  planets = planets.filter(p => p.id !== planetId);
+  
+  res.status(200).json({ message: 'Planet deleted', planets });
+});
+
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`)
 });
